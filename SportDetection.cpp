@@ -83,6 +83,8 @@ void SportDetection::ProcessCommand(int argc, char* argv[])
             std::cout << "threshold = " << threshold << std::endl;
             break;
 
+        case 3:
+            break;
         default:
             break;
     }
