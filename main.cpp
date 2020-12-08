@@ -1,8 +1,8 @@
-#include "SportDetection.h"
-// I am master!
+#include "MotionDetection.h"
+
 int main(int argc, char* argv[])
 {
-	SportDetection application;
+	MotionDetection application;
 	application.ProcessCommand(argc,argv);
 	
 	if (application.Init())
