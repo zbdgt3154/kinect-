@@ -1,5 +1,5 @@
-#include "SportDetection.h"
-// I am tanglx!
+#include "MotionDetection.h"
+
 int main(int argc, char* argv[])
 {
 	MotionDetection application;
