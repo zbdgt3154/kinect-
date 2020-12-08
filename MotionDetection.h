@@ -20,7 +20,7 @@
 // Kinect DK
 #include <k4a/k4a.hpp>
 
-class SportDetection
+class MotionDetection
 {
 public:
 	k4a::device m_device;

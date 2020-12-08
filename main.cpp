@@ -2,7 +2,7 @@
 // I am tanglx!
 int main(int argc, char* argv[])
 {
-	SportDetection application;
+	MotionDetection application;
 	application.ProcessCommand(argc,argv);
 	
 	if (application.Init())

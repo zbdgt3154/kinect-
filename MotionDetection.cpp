@@ -1,6 +1,6 @@
-#include "SportDetection.h"
+#include "MotionDetection.h"
 
-bool SportDetection::Init()
+bool MotionDetection::Init()
 {
     // TODO: 是否可以命令行读取配置？
     // TODO: 能够在摄像机意外关闭时自启动？
@@ -28,7 +28,7 @@ bool SportDetection::Init()
     }
 }
 
-void SportDetection::Run()
+void MotionDetection::Run()
 {
 
     /*********************************************** 
@@ -71,7 +71,7 @@ void SportDetection::Run()
     }
 }
 
-void SportDetection::ProcessCommand(int argc, char* argv[])
+void MotionDetection::ProcessCommand(int argc, char* argv[])
 {
     //std::cout << "argc = " << argc << std::endl;
     //std::cout << "argv = " << argv[0] << std::endl;
@@ -92,7 +92,7 @@ void SportDetection::ProcessCommand(int argc, char* argv[])
 
 }
 
-bool SportDetection::isOnlyOneKinect()
+bool MotionDetection::isOnlyOneKinect()
 {
     const uint32_t device_count = k4a::device::get_installed_count();
     if (0 == device_count) {
@@ -114,7 +114,7 @@ bool SportDetection::isOnlyOneKinect()
     return true;
 }
 
-void SportDetection::config()
+void MotionDetection::config()
 {
     // TODO: 将配置设置成为命令行参数可以修改的模式
     m_config = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
@@ -130,7 +130,7 @@ void SportDetection::config()
     m_k4aTransformation = k4a::transformation(m_k4aCalibration);
 }
 
-bool SportDetection::isEnableCapture()
+bool MotionDetection::isEnableCapture()
 {
     int iAuto = 0;
     int iAutoError = 0;
@@ -165,7 +165,7 @@ bool SportDetection::isEnableCapture()
     return false;
 }
 
-void SportDetection::processDepthImage(k4a::image image)
+void MotionDetection::processDepthImage(k4a::image image)
 {
 
     transformed_depthImage = m_k4aTransformation.depth_image_to_color_camera(image);
@@ -208,7 +208,7 @@ void SportDetection::processDepthImage(k4a::image image)
     
 }
 
-void SportDetection::processRGBImage(k4a::image image)
+void MotionDetection::processRGBImage(k4a::image image)
 {
     cv_rgbImage_with_alpha = cv::Mat(image.get_height_pixels(), image.get_width_pixels(), CV_8UC4,
         (void*)image.get_buffer());
@@ -221,7 +221,7 @@ void SportDetection::processRGBImage(k4a::image image)
 
 }
 
-double SportDetection::depthAve(cv::Mat image)
+double MotionDetection::depthAve(cv::Mat image)
 {
     cv::Mat l_average, l_stddev;
     double l_mean;
@@ -231,7 +231,7 @@ double SportDetection::depthAve(cv::Mat image)
     return l_mean;
 }
 
-void SportDetection::saveRGBImage(cv::Mat rgbImage, double timeStemp)
+void MotionDetection::saveRGBImage(cv::Mat rgbImage, double timeStemp)
 {
     std::string l_timeStemp = std::to_string(timeStemp);
     std::string fliename = "./SportImageRGB/" + getSysTime() + "_" + l_timeStemp + "_" + std::to_string(rgbImageNo) + ".png";
@@ -241,7 +241,7 @@ void SportDetection::saveRGBImage(cv::Mat rgbImage, double timeStemp)
     issave = false;
 }
 
-void SportDetection::saveDepthImage(cv::Mat depthImage, double timeStemp)
+void MotionDetection::saveDepthImage(cv::Mat depthImage, double timeStemp)
 {
     std::string l_timeStemp = std::to_string(timeStemp);
     std::string fliename = "./SportImageDepth/" + getSysTime() + "_" + l_timeStemp + "_" + std::to_string(depthImageNo) + ".png";
@@ -252,7 +252,7 @@ void SportDetection::saveDepthImage(cv::Mat depthImage, double timeStemp)
     issave = true;
 }
 
-std::string SportDetection::getSysTime()
+std::string MotionDetection::getSysTime()
 {
     auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     //转为字符串
@@ -262,19 +262,19 @@ std::string SportDetection::getSysTime()
     return str_time;
 }
 
-k4a::image SportDetection::captureDepthImage(k4a::capture capture)
+k4a::image MotionDetection::captureDepthImage(k4a::capture capture)
 {
     return capture.get_depth_image();
 }
 
-void SportDetection::getImageInfo(k4a::image image)
+void MotionDetection::getImageInfo(k4a::image image)
 {
     //将需要的图像信息写成单独的数据结构，读取进来后开始保存
     devicetimestemp = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(
         image.get_device_timestamp()).count());
 }
 
-k4a::image SportDetection::captureRGBImage(k4a::capture capture)
+k4a::image MotionDetection::captureRGBImage(k4a::capture capture)
 {
     return capture.get_color_image();
 }
