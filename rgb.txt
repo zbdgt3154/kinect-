@@ -1,0 +1,4 @@
+#  color images
+#  file: rgbd_dataset
+#  timestamp    filename
+1.151044    rgb/锁3：2020-10-27-15-23-02.png

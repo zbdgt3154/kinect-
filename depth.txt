@@ -1,0 +1,4 @@
+#  depth images
+#  file: rgbd_dataset
+#  timestamp    filename
+1.151066    depth/锁3：2020-10-27-15-23-02.png
