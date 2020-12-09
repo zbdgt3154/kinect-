@@ -1,3 +1,5 @@
+#define BUF_SIZE 4096
+
 #include "MotionDetection.h"
 
 bool MotionDetection::Init()
@@ -11,6 +13,8 @@ bool MotionDetection::Init()
     saveCurrentNo = 0;
     depthImageNo = 1;
     rgbImageNo = 1;
+    createShareMemory();
+
     if (isOnlyOneKinect())
     {
         m_device = k4a::device::open(K4A_DEVICE_DEFAULT);
@@ -189,8 +193,9 @@ void MotionDetection::processDepthImage(k4a::image image)
     {
         //if (depthImageNo < 100)
         //{
-            normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
-            saveDepthImage(cv_depth_8U, devicetimestemp);
+        sendStartMsg();
+        normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
+        saveDepthImage(cv_depth_8U, devicetimestemp);
         //}
         //TODO: 连续保存10帧图像.
     }
@@ -209,11 +214,6 @@ void MotionDetection::processRGBImage(k4a::image image)
         (void*)image.get_buffer());
 
     cv::cvtColor(cv_rgbImage_with_alpha, cv_rgbImage_no_alpha, cv::COLOR_BGRA2BGR);
-    //if (rgbImageNo < 100)
-    //{
-        //saveRGBImage(cv_rgbImage_no_alpha, devicetimestemp);
-    //}
-
 }
 
 double MotionDetection::depthAve(cv::Mat image)
@@ -226,8 +226,78 @@ double MotionDetection::depthAve(cv::Mat image)
     return l_mean;
 }
 
-void MotionDetection::sendStartMsg(bool open)
+void MotionDetection::startRecorder()
 {
+}
+
+void MotionDetection::createShareMemory()
+{
+    //步骤1：创建共享文件句柄
+    shared_file = CreateFileMapping(
+
+        INVALID_HANDLE_VALUE,//物理文件句柄
+
+        NULL,  //默认安全级别
+
+        PAGE_READWRITE,      //PAGE_READWRITE表示可读可写，PAGE_READONLY表示只读，PAGE_WRITECOPY表示只写
+
+        0,  //高位文件大小
+
+        BUF_SIZE,  //低位文件大小
+
+        L"ShareMemory"  //共享内存名称
+
+    );
+
+    if (shared_file == NULL)
+    {
+        std::cout << "Could not create file mapping object..." << std::endl;
+    }
+    else
+    {
+        std::cout << "Create file mapping object successfully!" << std::endl;
+    }
+
+    //步骤2：映射缓存区视图，得到指向共享内存的指针
+
+    lpBUF = MapViewOfFile(
+
+        shared_file, //已创建的文件映射对象句柄
+
+        FILE_MAP_ALL_ACCESS,//访问模式:可读写
+
+        0, //文件偏移的高32位
+
+        0, //文件偏移的低32位
+
+        BUF_SIZE //映射视图的大小
+
+    );
+
+    if (lpBUF == NULL)
+
+    {
+
+        std::cout << "Could not create file mapping object..." << std::endl;
+
+        CloseHandle(shared_file);
+
+    }
+
+    H_Mutex = CreateMutex(NULL, FALSE, L"sm_mutex");
+    H_Event = CreateEvent(NULL, FALSE, FALSE, L"sm_event");
+}
+
+void MotionDetection::sendStartMsg()
+{
+    if (issave)
+    {
+        char buffer[50] = "start analyse!";
+        WaitForSingleObject(H_Mutex, INFINITE); //使用互斥体加锁
+        memcpy(lpBUF, buffer, strlen(buffer) + 1);
+        ReleaseMutex(H_Mutex); //放锁
+        SetEvent(H_Event);
+    }
 }
 
 void MotionDetection::saveRGBImage(cv::Mat rgbImage, double timeStemp)

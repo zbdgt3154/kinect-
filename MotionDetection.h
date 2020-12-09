@@ -43,6 +43,11 @@ private:
 	k4a::calibration m_k4aCalibration;
 	k4a::transformation m_k4aTransformation;
 
+	//创建共享内存进行通信
+	HANDLE H_Mutex = NULL;
+	HANDLE H_Event = NULL;
+	HANDLE shared_file;
+	LPVOID lpBUF;
 	//double savetimestemp;		// 存储图像时间戳
 	double devicetimestemp;		// 设备图像时间戳
 
@@ -71,7 +76,8 @@ private:
 
 	// TODO: 调用系统自带的recoder
 	void startRecorder();										// 启动记录程序
-	void sendStartMsg(bool open);										
+	void createShareMemory();
+	void sendStartMsg();										
 	void saveRGBImage(cv::Mat rgbImage, double timeStemp);		// 保存RGB图像
 	void saveDepthImage(cv::Mat depthImage, double timeStemp);	// 保存深度图像
 	std::string getSysTime();									// 获取当前系统时间
