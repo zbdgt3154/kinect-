@@ -33,7 +33,7 @@ void MotionDetection::Run()
 
     /*********************************************** 
     一、捕获视频流
-    二、直接进行一个运动检测判的定
+    二、直接进行一个运动检测判定
     三、如果符合存在运动，则开始（录像/连续截图）？
     ************************************************/
 
@@ -173,11 +173,6 @@ void MotionDetection::processDepthImage(k4a::image image)
         (void*)transformed_depthImage.get_buffer(), static_cast<size_t>(transformed_depthImage.get_stride_bytes()));
     
     // TODO: 使用更加精确的方法进行运动检测，使用命令行选择不同的模式，可选方案如下
-    /**************************************************
-    1、 计算平均深度的方式来测算
-    2、 计算深度图的分布检测
-    3、 使用逐帧法判断运动
-    ***************************************************/
 
     if (saveCurrentNo == 0)
     {
@@ -229,6 +224,10 @@ double MotionDetection::depthAve(cv::Mat image)
     l_mean = l_average.at<double>(0, 0);
     std::cout << "mean = " << l_mean << std::endl;
     return l_mean;
+}
+
+void MotionDetection::sendStartMsg(bool open)
+{
 }
 
 void MotionDetection::saveRGBImage(cv::Mat rgbImage, double timeStemp)

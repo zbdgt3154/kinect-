@@ -64,14 +64,14 @@ private:
 	bool isOnlyOneKinect();										// 发现机器是否只连接唯一一台Kinect
 	void config();												// 配置kinect
 	bool isEnableCapture();										// 是否能够捕获视频流	
-	
 
 	void processDepthImage(k4a::image image);					// 处理深度图像
 	void processRGBImage(k4a::image image);						// 处理RGB图像
 	double depthAve(cv::Mat image);								// 计算平均深度
 
 	// TODO: 调用系统自带的recoder
-	void startrecorder();										// 启动记录程序
+	void startRecorder();										// 启动记录程序
+	void sendStartMsg(bool open);										
 	void saveRGBImage(cv::Mat rgbImage, double timeStemp);		// 保存RGB图像
 	void saveDepthImage(cv::Mat depthImage, double timeStemp);	// 保存深度图像
 	std::string getSysTime();									// 获取当前系统时间
