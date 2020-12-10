@@ -62,8 +62,8 @@ void MotionDetection::Run()
             processRGBImage(l_rgbImage);
             // TODO: 添加检测到时候图像显示框的文字变化。
             // TODO: 将显示图像封装成单独的方法。
-            imshow("运动检测", cv_rgbImage_no_alpha);
-            cvWaitKey(33);
+            imshow("movenment detect", cv_rgbImage_no_alpha);
+            cv::waitKey(33);
             std::cout << "显示图片" << std::endl;
             
             if (issave)
