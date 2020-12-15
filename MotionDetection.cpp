@@ -1,4 +1,6 @@
 #define BUF_SIZE 4096
+#define MAX_Pixel 65535
+#define MAX_Depth 1500
 
 #include "MotionDetection.h"
 
@@ -14,7 +16,7 @@ bool MotionDetection::Init()
     depthImageNo = 1;
     rgbImageNo = 1;
     createShareMemory();
-
+    issave = false;
     if (isOnlyOneKinect())
     {
         m_device = k4a::device::open(K4A_DEVICE_DEFAULT);
@@ -57,7 +59,7 @@ void MotionDetection::Run()
             k4a::image l_depthImage = captureDepthImage(this->m_capture);
             getImageInfo(l_depthImage);
             processDepthImage(l_depthImage);
-            // TODO: 处理的与保存的逻辑还需要调整
+
             k4a::image l_rgbImage = captureRGBImage(this->m_capture);
             processRGBImage(l_rgbImage);
             // TODO: 添加检测到时候图像显示框的文字变化。
@@ -77,8 +79,6 @@ void MotionDetection::Run()
 
 void MotionDetection::ProcessCommand(int argc, char* argv[])
 {
-    //std::cout << "argc = " << argc << std::endl;
-    //std::cout << "argv = " << argv[0] << std::endl;
     switch (argc)
     {
         // 设置门限
@@ -127,6 +127,7 @@ void MotionDetection::config()
     m_config.color_resolution = K4A_COLOR_RESOLUTION_1080P;
     m_config.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
     m_config.synchronized_images_only = true;
+    m_device.stop_cameras();
     m_device.start_cameras(&m_config);
     std::cout << "Done: start camera." << std::endl;
 
@@ -141,7 +142,7 @@ bool MotionDetection::isEnableCapture()
     //cv::namedWindow("运动检测", cv::WINDOW_AUTOSIZE);
     while (true) {
         if (m_device.get_capture(&m_capture)) {
-            std::cout << iAuto << ". Capture several frames to give auto-exposure" << std::endl;
+            //std::cout << iAuto << ". Capture several frames to give auto-exposure" << std::endl;
 
 
             if (iAuto != 30) {
@@ -180,7 +181,10 @@ void MotionDetection::processDepthImage(k4a::image image)
 
     if (saveCurrentNo == 0)
     {
+        //对深度图进行二值化预处理
+        cv::threshold(cv_depth, cv_depth,MAX_Depth,MAX_Pixel,cv::THRESH_TOZERO_INV);
         //求取深度图平均的方法触发保存
+
         average = depthAve(cv_depth);
         
         //求深度图分布的方法
@@ -245,7 +249,7 @@ void MotionDetection::createShareMemory()
 
         BUF_SIZE,  //低位文件大小
 
-        L"ShareMemory"  //共享内存名称
+        L"StartSignal"  //共享内存名称
 
     );
 
