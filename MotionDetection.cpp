@@ -81,13 +81,52 @@ void MotionDetection::ProcessCommand(int argc, char* argv[])
 {
     switch (argc)
     {
-        // 设置门限
+        case 1:
+            std::cout << "设置门限"<< std::endl;
+            std::cin >> threshold;
+            std::cout << "门限设置为 " << threshold << std::endl;
+
+            std::cout << "设置帧率（1、5fps  2、15fps  3、30fps）" << std::endl;
+            int fps;
+            std::cin >> fps;
+            switch (fps)
+            {
+            case 1:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_5;
+                std::cout << "设置帧率为5fps"  << std::endl;
+                break;
+            case 2:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_15;
+                std::cout << "设置帧率为15fps" << std::endl;
+                break;
+            case 3:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_30;
+                std::cout << "设置帧率为30fps" << std::endl;
+                break;
+            default:
+                break;
+            }
+
+            
+            
+            break;
         case 2:
-            threshold = strtod(argv[1],NULL);
-            std::cout << "threshold = " << threshold << std::endl;
+            if (argv[1] == "def")
+            {
+                std::cout << "使用默认设置（门限500 30fps 1080p）" << threshold << std::endl;
+            }
+            else
+            {
+                threshold = strtod(argv[1], NULL);
+                std::cout << "threshold = " << threshold << std::endl;
+            }
+
             break;
 
         case 3:
+            threshold = strtod(argv[1], NULL);
+            std::cout << "threshold = " << threshold << std::endl;
+
             break;
         default:
             break;
@@ -201,7 +240,6 @@ void MotionDetection::processDepthImage(k4a::image image)
         normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
         saveDepthImage(cv_depth_8U, devicetimestemp);
         //}
-        //TODO: 连续保存10帧图像.
     }
     else
     {
