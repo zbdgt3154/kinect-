@@ -1,4 +1,6 @@
 #define BUF_SIZE 4096
+#define MAX_Pixel 65535
+#define MAX_Depth 1500
 
 #include "MotionDetection.h"
 
@@ -14,7 +16,7 @@ bool MotionDetection::Init()
     depthImageNo = 1;
     rgbImageNo = 1;
     createShareMemory();
-
+    issave = false;
     if (isOnlyOneKinect())
     {
         m_device = k4a::device::open(K4A_DEVICE_DEFAULT);
@@ -57,7 +59,7 @@ void MotionDetection::Run()
             k4a::image l_depthImage = captureDepthImage(this->m_capture);
             getImageInfo(l_depthImage);
             processDepthImage(l_depthImage);
-            // TODO: 处理的与保存的逻辑还需要调整
+
             k4a::image l_rgbImage = captureRGBImage(this->m_capture);
             processRGBImage(l_rgbImage);
             // TODO: 添加检测到时候图像显示框的文字变化。
@@ -77,17 +79,54 @@ void MotionDetection::Run()
 
 void MotionDetection::ProcessCommand(int argc, char* argv[])
 {
-    //std::cout << "argc = " << argc << std::endl;
-    //std::cout << "argv = " << argv[0] << std::endl;
     switch (argc)
     {
-        // 设置门限
+        case 1:
+            std::cout << "设置门限"<< std::endl;
+            std::cin >> threshold;
+            std::cout << "门限设置为 " << threshold << std::endl;
+
+            std::cout << "设置帧率（1、5fps  2、15fps  3、30fps）" << std::endl;
+            int fps;
+            std::cin >> fps;
+            switch (fps)
+            {
+            case 1:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_5;
+                std::cout << "设置帧率为5fps"  << std::endl;
+                break;
+            case 2:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_15;
+                std::cout << "设置帧率为15fps" << std::endl;
+                break;
+            case 3:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_30;
+                std::cout << "设置帧率为30fps" << std::endl;
+                break;
+            default:
+                break;
+            }
+
+            
+            
+            break;
         case 2:
-            threshold = strtod(argv[1],NULL);
-            std::cout << "threshold = " << threshold << std::endl;
+            if (argv[1] == "def")
+            {
+                std::cout << "使用默认设置（门限500 30fps 1080p）" << threshold << std::endl;
+            }
+            else
+            {
+                threshold = strtod(argv[1], NULL);
+                std::cout << "threshold = " << threshold << std::endl;
+            }
+
             break;
 
         case 3:
+            threshold = strtod(argv[1], NULL);
+            std::cout << "threshold = " << threshold << std::endl;
+
             break;
         default:
             break;
@@ -127,6 +166,7 @@ void MotionDetection::config()
     m_config.color_resolution = K4A_COLOR_RESOLUTION_1080P;
     m_config.depth_mode = K4A_DEPTH_MODE_NFOV_UNBINNED;
     m_config.synchronized_images_only = true;
+    m_device.stop_cameras();
     m_device.start_cameras(&m_config);
     std::cout << "Done: start camera." << std::endl;
 
@@ -141,7 +181,7 @@ bool MotionDetection::isEnableCapture()
     //cv::namedWindow("运动检测", cv::WINDOW_AUTOSIZE);
     while (true) {
         if (m_device.get_capture(&m_capture)) {
-            std::cout << iAuto << ". Capture several frames to give auto-exposure" << std::endl;
+            //std::cout << iAuto << ". Capture several frames to give auto-exposure" << std::endl;
 
 
             if (iAuto != 30) {
@@ -176,28 +216,30 @@ void MotionDetection::processDepthImage(k4a::image image)
     cv_depth = cv::Mat(transformed_depthImage.get_height_pixels(), transformed_depthImage.get_width_pixels(), CV_16U,
         (void*)transformed_depthImage.get_buffer(), static_cast<size_t>(transformed_depthImage.get_stride_bytes()));
     
+    // TODO: 使用更加精确的方法进行运动检测，使用命令行选择不同的模式，可选方案如下
 
-    //if (saveCurrentNo == 0)
-    //{
+    if (saveCurrentNo == 0)
+    {
+        //对深度图进行二值化预处理
+        cv::threshold(cv_depth, cv_depth,MAX_Depth,MAX_Pixel,cv::THRESH_TOZERO_INV);
         //求取深度图平均的方法触发保存
+
         average = depthAve(cv_depth);
-     
-    //}
+        
+        //求深度图分布的方法
+        // TODO: 计算分布模型
+    }
 
 
 
-    //if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
-    if (average < threshold)
+    if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
     {
         //if (depthImageNo < 100)
         //{
-        //sendStartMsg();
+        sendStartMsg();
         normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
-        //将背景点的深度值设为0
-        cv::threshold(cv_depth_8U, cv_depth_8U, 50, 255, cv::THRESH_TOZERO_INV);
         saveDepthImage(cv_depth_8U, devicetimestemp);
         //}
-        //TODO: 连续保存10帧图像.
     }
     else
     {
@@ -245,7 +287,7 @@ void MotionDetection::createShareMemory()
 
         BUF_SIZE,  //低位文件大小
 
-        L"ShareMemory"  //共享内存名称
+        L"StartSignal"  //共享内存名称
 
     );
 

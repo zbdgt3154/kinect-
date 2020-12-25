@@ -54,6 +54,7 @@ private:
 	double average;					// 图像均值
 	double threshold;			// 判断门限
 	bool issave;				// 是否保存此帧图像
+	bool isDefConfig;			// 是否使用默认设置
 	int saveTotalNo;			// 单次触发保存后保存的总张数
 	int saveCurrentNo;			// 单次触发保存保存的当前张数
 
