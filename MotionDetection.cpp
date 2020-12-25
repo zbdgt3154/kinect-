@@ -218,8 +218,8 @@ void MotionDetection::processDepthImage(k4a::image image)
     
     // TODO: 使用更加精确的方法进行运动检测，使用命令行选择不同的模式，可选方案如下
 
-    if (saveCurrentNo == 0)
-    {
+    //if (saveCurrentNo == 0)
+    //{
         //对深度图进行二值化预处理
         cv::threshold(cv_depth, cv_depth,MAX_Depth,MAX_Pixel,cv::THRESH_TOZERO_INV);
         //求取深度图平均的方法触发保存
@@ -228,15 +228,16 @@ void MotionDetection::processDepthImage(k4a::image image)
         
         //求深度图分布的方法
         // TODO: 计算分布模型
-    }
+    //}
 
 
 
-    if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
+    //if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
+     if (average < threshold)
     {
         //if (depthImageNo < 100)
         //{
-        sendStartMsg();
+        //sendStartMsg();
         normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
         saveDepthImage(cv_depth_8U, devicetimestemp);
         //}
