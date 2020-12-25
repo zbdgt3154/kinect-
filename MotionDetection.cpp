@@ -64,9 +64,9 @@ void MotionDetection::Run()
             processRGBImage(l_rgbImage);
             // TODO: 添加检测到时候图像显示框的文字变化。
             // TODO: 将显示图像封装成单独的方法。
-            imshow("运动检测", cv_rgbImage_no_alpha);
+            imshow("GetData", cv_rgbImage_no_alpha);
             cvWaitKey(33);
-            std::cout << "显示图片" << std::endl;
+            std::cout << "show image" << std::endl;
             
             if (issave)
             {
@@ -82,26 +82,26 @@ void MotionDetection::ProcessCommand(int argc, char* argv[])
     switch (argc)
     {
         case 1:
-            std::cout << "设置门限"<< std::endl;
+            std::cout << "set threshold"<< std::endl;
             std::cin >> threshold;
-            std::cout << "门限设置为 " << threshold << std::endl;
+            std::cout << "threshold = " << threshold << std::endl;
 
-            std::cout << "设置帧率（1、5fps  2、15fps  3、30fps）" << std::endl;
+            std::cout << "set frame(1、5fps  2、15fps  3、30fps)" << std::endl;
             int fps;
             std::cin >> fps;
             switch (fps)
             {
             case 1:
                 m_config.camera_fps = K4A_FRAMES_PER_SECOND_5;
-                std::cout << "设置帧率为5fps"  << std::endl;
+                std::cout << "frame = 5fps"  << std::endl;
                 break;
             case 2:
                 m_config.camera_fps = K4A_FRAMES_PER_SECOND_15;
-                std::cout << "设置帧率为15fps" << std::endl;
+                std::cout << "frame = 15fps" << std::endl;
                 break;
             case 3:
                 m_config.camera_fps = K4A_FRAMES_PER_SECOND_30;
-                std::cout << "设置帧率为30fps" << std::endl;
+                std::cout << "frame = 30fps" << std::endl;
                 break;
             default:
                 break;
@@ -113,7 +113,7 @@ void MotionDetection::ProcessCommand(int argc, char* argv[])
         case 2:
             if (argv[1] == "def")
             {
-                std::cout << "使用默认设置（门限500 30fps 1080p）" << threshold << std::endl;
+                std::cout << "def set(threshold 500 30fps 1080p)" << threshold << std::endl;
             }
             else
             {
