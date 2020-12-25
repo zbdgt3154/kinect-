@@ -176,25 +176,25 @@ void MotionDetection::processDepthImage(k4a::image image)
     cv_depth = cv::Mat(transformed_depthImage.get_height_pixels(), transformed_depthImage.get_width_pixels(), CV_16U,
         (void*)transformed_depthImage.get_buffer(), static_cast<size_t>(transformed_depthImage.get_stride_bytes()));
     
-    // TODO: 使用更加精确的方法进行运动检测，使用命令行选择不同的模式，可选方案如下
 
-    if (saveCurrentNo == 0)
-    {
+    //if (saveCurrentNo == 0)
+    //{
         //求取深度图平均的方法触发保存
         average = depthAve(cv_depth);
-        
-        //求深度图分布的方法
-        // TODO: 计算分布模型
-    }
+     
+    //}
 
 
 
-    if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
+    //if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
+    if (average < threshold)
     {
         //if (depthImageNo < 100)
         //{
-        sendStartMsg();
+        //sendStartMsg();
         normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
+        //将背景点的深度值设为0
+        cv::threshold(cv_depth_8U, cv_depth_8U, 50, 255, cv::THRESH_TOZERO_INV);
         saveDepthImage(cv_depth_8U, devicetimestemp);
         //}
         //TODO: 连续保存10帧图像.
