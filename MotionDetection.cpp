@@ -64,9 +64,9 @@ void MotionDetection::Run()
             processRGBImage(l_rgbImage);
             // TODO: 添加检测到时候图像显示框的文字变化。
             // TODO: 将显示图像封装成单独的方法。
-            imshow("movenment detect", cv_rgbImage_no_alpha);
+            imshow("GetData", cv_rgbImage_no_alpha);
             cv::waitKey(33);
-            std::cout << "显示图片" << std::endl;
+            std::cout << "show image" << std::endl;
             
             if (issave)
             {
@@ -81,13 +81,52 @@ void MotionDetection::ProcessCommand(int argc, char* argv[])
 {
     switch (argc)
     {
-        // 设置门限
-        case 2:
-            threshold = strtod(argv[1],NULL);
+        case 1:
+            std::cout << "set threshold"<< std::endl;
+            std::cin >> threshold;
             std::cout << "threshold = " << threshold << std::endl;
+
+            std::cout << "set frame(1、5fps  2、15fps  3、30fps)" << std::endl;
+            int fps;
+            std::cin >> fps;
+            switch (fps)
+            {
+            case 1:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_5;
+                std::cout << "frame = 5fps"  << std::endl;
+                break;
+            case 2:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_15;
+                std::cout << "frame = 15fps" << std::endl;
+                break;
+            case 3:
+                m_config.camera_fps = K4A_FRAMES_PER_SECOND_30;
+                std::cout << "frame = 30fps" << std::endl;
+                break;
+            default:
+                break;
+            }
+
+            
+            
+            break;
+        case 2:
+            if (argv[1] == "def")
+            {
+                std::cout << "def set(threshold 500 30fps 1080p)" << threshold << std::endl;
+            }
+            else
+            {
+                threshold = strtod(argv[1], NULL);
+                std::cout << "threshold = " << threshold << std::endl;
+            }
+
             break;
 
         case 3:
+            threshold = strtod(argv[1], NULL);
+            std::cout << "threshold = " << threshold << std::endl;
+
             break;
         default:
             break;
@@ -179,8 +218,8 @@ void MotionDetection::processDepthImage(k4a::image image)
     
     // TODO: 使用更加精确的方法进行运动检测，使用命令行选择不同的模式，可选方案如下
 
-    if (saveCurrentNo == 0)
-    {
+    //if (saveCurrentNo == 0)
+    //{
         //对深度图进行二值化预处理
         cv::threshold(cv_depth, cv_depth,MAX_Depth,MAX_Pixel,cv::THRESH_TOZERO_INV);
         //求取深度图平均的方法触发保存
@@ -189,19 +228,19 @@ void MotionDetection::processDepthImage(k4a::image image)
         
         //求深度图分布的方法
         // TODO: 计算分布模型
-    }
+    //}
 
 
 
-    if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
+    //if (average<threshold && saveCurrentNo<=saveTotalNo && saveCurrentNo != 0)
+     if (average < threshold)
     {
         //if (depthImageNo < 100)
         //{
-        sendStartMsg();
+        //sendStartMsg();
         normalize(cv_depth, cv_depth_8U, 0, 256 * 256 - 1, cv::NORM_MINMAX);
         saveDepthImage(cv_depth_8U, devicetimestemp);
         //}
-        //TODO: 连续保存10帧图像.
     }
     else
     {
